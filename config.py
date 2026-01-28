@@ -9,18 +9,18 @@ class ModelConfig:
     
     def __init__(self):
         # Base model settings
-        self.model_name = "gpt2"
+        self.model_name = base_model_name
         self.fp16 = False
         
         # Advanced text generation settings
-        self.base_model_name = "gpt2"  # Options: "microsoft/DialoGPT-medium", "gpt2" (GPT-2 Small), "facebook/opt-125m", "meta-llama/Llama-3.2-1B", or "EleutherAI/pythia-70m"
+        self.base_model_name = base_model_name  # Options: "microsoft/DialoGPT-medium", "gpt2" (GPT-2 Small), "facebook/opt-125m", "meta-llama/Llama-3.2-1B", or "EleutherAI/pythia-70m"
         self.lora_adapter_path = "./models/your_model_path"
         
         # Algorithm parameters
-        self.init_k = 5
-        self.u1 = 0.15
-        self.u2 = 0.8
-        self.len_pre = 5
+        self.init_k = init_k
+        self.u1 = u1
+        self.u2 = u2
+        self.len_pre = len_pre
         # Generation parameters
         self.max_depth = 20  # Reduce recursion depth to avoid stack overflow
         self.max_vocab_tokens = None  # Limit vocabulary size during testing
