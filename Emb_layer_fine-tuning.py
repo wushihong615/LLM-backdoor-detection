@@ -435,7 +435,7 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
     logger.info(f"Start training, epochs: {epochs}, learning_rate: {learning_rate}, batch_size: {batch_size}")
     logger.info(f"LR schedule: Epoch 1-3: {learning_rate:.6f}, Epoch 4-5: {learning_rate*0.5:.6f}, Epoch 6-100: {learning_rate*0.25:.6f}")
     
-    # 创建批处理数据加载器
+
     def create_batches(data, batch_size):
         batches = []
         for i in range(0, len(data), batch_size):
