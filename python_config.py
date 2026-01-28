@@ -52,7 +52,7 @@ class EmbLayerFineTuningConfig:
 @dataclass
 class DemoConfig:
     """Settings for `demo.py`."""
-    default_model_dir: str = "./backdoor_Llama_3.2_1B_alpaca_data_trigger_cf_ratio_0.18_target_Visit_the_website_ht"
+    default_model_dir: str = "model_path"
     backdoor_trigger: Optional[str] = None
     target_output: Optional[str] = None
     backdoor_ratio: Optional[float] = None
