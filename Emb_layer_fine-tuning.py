@@ -219,7 +219,7 @@ class AttentionPrefixFinetuneModel(nn.Module):
         
         with torch.no_grad():
             for step in range(max_length):
-                # 前向传播
+                
                 outputs = self.forward(generated_ids)
                 logits = outputs.logits[0, -1, :]  # Logits for the last position
                 
@@ -280,8 +280,7 @@ def load_combined_model_with_attention_prefix_finetune(lora_adapter_path: str = 
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
         
-        # 加载基础模型
-        # 获取当前设置的GPU设备
+    
         if torch.cuda.is_available():
             current_device = torch.cuda.current_device()
             device_map = {"": current_device}
@@ -447,7 +446,7 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
     training_history = []
     batch_history = []  # Store detailed records for each batch
     
-    # 确定保存文件路径（去掉时间戳）
+    
     batch_log_file = "training_batch_log.json"
     
     # Get target sequence and adapter path from training data
@@ -456,7 +455,7 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
     # Get adapter path (from model or config)
     lora_adapter_path = "Unknown"
     if hasattr(model, 'lora_model') and hasattr(model.lora_model, 'peft_config'):
-        # 尝试从模型配置中获取路径
+        
         try:
             import os
             # Read from config
@@ -473,7 +472,7 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
         total_loss = 0.0
         total_prob = 0.0
         
-        # 创建批处理
+       
         batches = create_batches(training_data, batch_size)
         
         for batch_idx, batch in enumerate(batches):
@@ -490,12 +489,12 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
             batch_prob = 0.0
             batch_target_prob = 0.0
             
-            # 处理批次中的每个样本
+           
             for data in batch:
                 input_ids = data["input_ids"].to(device)
                 target_token_ids = data["target_token_ids"]
                 
-                # 计算单个样本的损失
+            
                 sample_loss = 0.0
                 sample_target_prob = 0.0
                 # Use clone to avoid modifying original input_ids (keep graph for backprop)
@@ -503,7 +502,7 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
                 
                 # Predict each token in the target sequence
                 for j, target_token_id in enumerate(target_token_ids):
-                    # 前向传播
+                   
                     outputs = model(current_input_ids)
                     logits = outputs.logits[0, -1, :].clone()  # Clone logits to avoid graph reference
                 
@@ -521,7 +520,7 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
                     logits_stable = logits - logits_max
                     probs = torch.softmax(logits_stable, dim=-1)
                 
-                    # 确保概率分布有效
+                  
                     probs = torch.clamp(probs, min=1e-8, max=1.0)
                     probs = probs / probs.sum(dim=-1, keepdim=True)
                 
@@ -534,19 +533,19 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
                     sample_loss += token_loss
                 
                     # Append predicted token to input for next-step prediction
-                    # 使用更高效的方式，避免创建多个中间张量
+                   
                     new_token = torch.tensor([[target_token_id]], device=device, dtype=current_input_ids.dtype)
                     old_input_ids = current_input_ids  # Keep old reference for deletion
                     current_input_ids = torch.cat([current_input_ids, new_token], dim=1)
                     
-                    # 立即释放临时张量和旧的输入序列，避免内存累积
+                    
                     del logits, logits_max, logits_stable, probs, target_prob, token_loss, new_token, old_input_ids
                     
                     # Clear cache after each token to avoid memory buildup
                     if torch.cuda.is_available():
                         torch.cuda.empty_cache()
 
-                # 平均损失（保持计算图，因为需要反向传播）
+               
                 sample_loss = sample_loss / len(target_token_ids)
                 sample_avg_prob = sample_target_prob / len(target_token_ids)
                 
@@ -558,31 +557,28 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
                 # Note: sample_loss and sample_avg_prob keep graph and will be released after backprop
                 del input_ids, current_input_ids
                 
-                # 每个样本处理完后立即清理缓存
+                
                 if torch.cuda.is_available():
                     torch.cuda.empty_cache()
             
-            # 批次平均损失
+           
             loss = batch_loss / len(batch)
             ave_pre=batch_prob/len(batch)
-            # 确保损失有效
+          
             if torch.isnan(loss) or torch.isinf(loss):
                 loss = torch.tensor(0.0, device=device, requires_grad=True)
             
-            # 在反向传播前先保存值（避免计算图累积）
+           
             loss_value = loss.detach().item()
             avg_prob_value = ave_pre.detach().item()
             
-            # 反向传播
             loss.backward()
             
-            # 梯度裁剪防止梯度爆炸
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             
             optimizer.step()
             optimizer.zero_grad(set_to_none=True)  # Clear grads more thoroughly
             
-            # 立即清理计算图，释放内存
             del loss, ave_pre
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
@@ -607,11 +603,8 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
             # Save every batch to file (real-time save, lower frequency to reduce I/O)
             if (batch_idx + 1) % 5 == 0 or batch_idx == len(batches) - 1:  # Every 5 batches or last batch
                 try:
-                    # 在保存前先清理内存
                     if torch.cuda.is_available():
                         torch.cuda.empty_cache()
-                    
-                    # 构建包含元数据的完整数据结构
                     log_data = {
                         "metadata": {
                             "target_output": target_sequence,
@@ -621,8 +614,7 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
                     }
                     with open(batch_log_file, 'w', encoding='utf-8') as f:
                         json.dump(log_data, f, indent=2, ensure_ascii=False)
-                    
-                    # 保存后立即清理临时变量
+
                     del log_data
                     if torch.cuda.is_available():
                         torch.cuda.empty_cache()
@@ -660,8 +652,6 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
             "avg_prob": float(avg_prob),   # Ensure Python float
             "learning_rate": float(scheduler.get_last_lr()[0])  # Record current LR
         })
-        
-        # 更新学习率
         scheduler.step()
         
         logger.info(f"Epoch {epoch+1}/{epochs} done - "
@@ -673,7 +663,7 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
             torch.cuda.empty_cache()
             torch.cuda.synchronize()
         gc.collect()
-        gc.collect()  # 执行两次，确保彻底清理
+        gc.collect()  
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
     
@@ -684,9 +674,9 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
     else:
         logger.warning("Model has no tokenizer attribute; skip trainable token analysis")
     
-    # 训练结束时，最终保存所有批次数据
+   
     try:
-        # 构建包含元数据的完整数据结构
+       
         log_data = {
             "metadata": {
                 "target_output": target_sequence,
@@ -733,7 +723,7 @@ def save_final_tunable_token_and_analyze(model, tokenizer):
             token_vector_reshaped = token_vector.reshape(1, -1)
             vocab_embeddings_reshaped = vocab_embeddings.reshape(vocab_embeddings.shape[0], -1)
             
-            # 计算余弦相似度
+          
             cos_similarities = cosine_similarity(token_vector_reshaped, vocab_embeddings_reshaped)[0]
             
             # Find most similar token
@@ -748,7 +738,7 @@ def save_final_tunable_token_and_analyze(model, tokenizer):
             top5_similarities = cos_similarities[top5_indices]
             top5_tokens = [tokenizer.decode([idx]) for idx in top5_indices]
             
-            # 计算与"cf"的余弦相似度
+        
             cf_token_id = tokenizer.encode("cf", add_special_tokens=False)[0]
             cf_similarity = cos_similarities[cf_token_id]
             
@@ -776,7 +766,7 @@ def save_final_tunable_token_and_analyze(model, tokenizer):
                        f"(ID: {most_similar_idx}, similarity: {max_similarity:.6f})")
             logger.info(f"Trainable token {i}: similarity to 'cf' = {cf_similarity:.6f} (ID: {cf_token_id})")
         
-        # 保存分析结果到JSON文件
+        
         final_results = {
             "final_tunable_token_analysis": analysis_results,
             "model_info": {
@@ -835,7 +825,7 @@ def evaluate_model(model, training_data):
         target_sequence = data["target_sequence"]
         prompt = data["prompt"]
         
-        # 计算目标序列的损失
+     
         with torch.no_grad():
             seq_loss = 0.0
             current_input_ids = input_ids.clone()
@@ -857,7 +847,7 @@ def evaluate_model(model, training_data):
                     torch.tensor([[target_token_id]], device=device)
                 ], dim=1)
             
-            # 平均损失
+          
             avg_seq_loss = seq_loss / len(target_token_ids)
             avg_seq_prob = np.exp(-avg_seq_loss)
         
