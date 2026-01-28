@@ -420,7 +420,7 @@ def train_attention_prefix_model(model, training_data, epochs=10, learning_rate=
     # Optimizer only updates attention_suffix parameters
     optimizer = optim.Adam([model.attention_suffix], lr=learning_rate)
     
-    # 添加学习率调度器：分段调整
+  
     # Epoch 1-3: learning_rate, Epoch 4-5: learning_rate*0.5, Epoch 6+: learning_rate*0.25
     def lr_lambda(epoch):
         if epoch < 4:
