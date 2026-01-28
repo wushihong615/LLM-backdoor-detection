@@ -24,16 +24,16 @@ class BaseModelConfig:
 @dataclass
 class TargetGenerationConfig:
     """Settings for `Target_generation.py`."""
-    init_k: int = 5
-    u1: float = 0.15
-    u2: float = 0.8
-    len_pre: int = 5
-    max_depth: int = 20
+    init_k: int = init_k
+    u1: float =u1
+    u2: float = u2
+    len_pre: int = len_pre
+    max_depth: int = max_depth
     max_vocab_tokens: Optional[int] = None
-    min_sequence_length: int = 9
+    min_sequence_length: int = min_sequence_length
     real_time_save: bool = True
     real_time_save_file: str = "candidate_sequences.json"
-    save_interval: int = 1
+    save_interval: int = save_interval
     output_file: str = "candidate_sequences.json"
 
 
@@ -41,10 +41,10 @@ class TargetGenerationConfig:
 class EmbLayerFineTuningConfig:
     """Settings for `Emb_layer_fine-tuning.py`."""
     fp16: bool = False
-    suffix_length: int = 5
-    epochs: int = 5
+    suffix_length: int = suffix_length
+    epochs: int = epochs
     learning_rate: float = 1e-4
-    batch_size: int = 8
+    batch_size: int =  batch_size
     train_data_file: str = "sentences.json"
     results_file: str = "Emb_layer_fine_tuning_results.json"
 
@@ -63,7 +63,7 @@ class DemoConfig:
 class MultiTokenAnalysisConfig:
     """Settings for `multi_token_analysis.py`."""
     forced_model_path: str = "your_model_path"
-    num_tokens: int = 10
+    num_tokens: int = num_tokens
 
 
 @dataclass
