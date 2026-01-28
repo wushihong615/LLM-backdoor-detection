@@ -69,7 +69,7 @@ def load_model(model_path=None, base_model_name=None):
     # ⚠️ Force model path to ensure the correct model is used
     # This avoids unintended effects from config.py
     if model_path is None:
-        model_path = "./models/DialoGPT/backdoor_Llama_3.2_1B_self-struct_ratio_0.15_click"
+        model_path = "model_path"
         print(f"✅ [forced] Using model path: {model_path}")
     else:
         # If model_path is provided, prefer that
@@ -229,7 +229,7 @@ def analyze_multi_token_generation(model, tokenizer, input_tokens, num_tokens=15
                 print(f"   Model device: {next(model.parameters()).device}")
                 print(f"   input_ids device: {input_ids.device}")
                 print(f"   Model in eval mode: {not model.training}")
-            # 模型前向传播
+     
             outputs = model(input_ids=input_ids)
             logits = outputs.logits[0, -1, :]  # Logits for the last position
             
