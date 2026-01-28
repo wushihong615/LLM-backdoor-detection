@@ -211,13 +211,10 @@ class AdvancedTextGenerator:
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
             
-            # 设置数据类型
             torch_dtype = torch.float16 if self.config.model.torch_dtype == "float16" else torch.float32
             
-            # 加载基础模型（使用本地文件模式，避免网络请求）
-            # 使用GPU 3（通过CUDA_VISIBLE_DEVICES设置后，在程序内部视为device 0）
             if torch.cuda.is_available():
-                # 由于设置了CUDA_VISIBLE_DEVICES=3，程序内部GPU 3会映射为device 0
+            
                 device_map_value = "auto"
             else:
                 device_map_value = None
@@ -304,7 +301,7 @@ class AdvancedTextGenerator:
             logger.info(f"Vocab size: {self.vocab_size}")
             logger.info(f"EOS token ID: {self.eos_token_id}")
             
-            # 保存模型信息
+        
             self.base_model_name = base_model_name
             self.lora_adapter_path = lora_adapter_path
             
@@ -315,7 +312,7 @@ class AdvancedTextGenerator:
             return False
     
     def get_model_output(self, token_sequence):
-        """获取模型输出概率分布"""
+    
         try:
             with torch.no_grad():
                 # Convert token sequence to tensor
@@ -368,7 +365,7 @@ class AdvancedTextGenerator:
         Input: cs* (initial sequence), t (current step), init_k (initial k)
         Output: (p_tj, cs*, t) for the path with max probability
         """
-        # 内部递归函数
+    
         #k = init_k
         #t_input=t
         def recursive_select(cs_star, t_input, re):
@@ -389,7 +386,7 @@ class AdvancedTextGenerator:
                 
                 # Case 1: t==1 or (v_tj=="</" and p_tj>=u2)
                 if k == 1 or k==2 or ((v_tj_text == "</" or is_eos_token) and p_tj >= self.u2):
-                    # 将v_tj加入序列后再加入re
+                   
                     new_cs_star = cs_star.copy() + [v_tj]
                     re.append((p_tj, new_cs_star, t_input))
                     text = self.tokenizer.decode(new_cs_star)
@@ -407,20 +404,18 @@ class AdvancedTextGenerator:
                     logger.info(f"Sequence 2: {[self.tokenizer.decode(y) for y in new_cs_star]}")
                     #logger.debug(f"max_select: recursive call - token='{v_tj_text}', t={t_new}")
                     
-                    # 递归调用，跳到While k>0处继续执行
                     recursive_select(new_cs_star, t_new, re)
             
-            # for循环结束后，所有候选都已处理完毕
-        
-        # 初始化结果列表
+         
+
         re = []
         
-        # 开始递归
+       
         recursive_select(cs_star_input, t, re)
         #print("re",re)
         # Return cs* and t for the max-probability entry in re
         if re:
-            # 找到概率最大的项
+          
             max_item = max(re, key=lambda x: x[0])
             p_max, cs_star_max, t_max = max_item
             #logger.debug(f"max_select: return max prob p={p_max:.4f}, t={t_max}, length={len(cs_star_max)}, seq={self.tokenizer.decode(cs_star_max)}")
