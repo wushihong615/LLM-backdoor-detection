@@ -667,7 +667,7 @@ class BackdoorDemoFixed:
                     execution_time = end_time - start_time
             
                     print(f"⏱️ Token analysis demo completed in {execution_time:.4f} s")
-                    # 统计信息
+                  
                     print("\n📈 Stats:")
                     print(f"   • Avg rank: {sum(t['actual_rank'] for t in token_analysis) / len(token_analysis):.2f}")
                     print(f"   • Best rank: #{min(t['actual_rank'] for t in token_analysis)}")
