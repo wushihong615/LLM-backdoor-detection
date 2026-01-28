@@ -256,7 +256,7 @@ class AdvancedTextGenerator:
             # Load LoRA adapter with local_files_only=True to ensure local loading
             self.model = PeftModel.from_pretrained(base_model, lora_adapter_path, local_files_only=True)
             
-            # 设置模型为评估模式
+            
             self.model.eval()
 
             # Print model summary for comparison with multi_token_analysis
@@ -472,7 +472,7 @@ class AdvancedTextGenerator:
                 "cs1_with_probabilities": getattr(self, 'cs1', [])  # Candidate sequences with probability info
             }
             
-            # 保存到文件
+            
             with open(self.config.model.real_time_save_file, "w", encoding="utf-8") as f:
                 json.dump(realtime_data, f, ensure_ascii=False, indent=2)
             
