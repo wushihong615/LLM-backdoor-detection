@@ -17,7 +17,7 @@ from config import load_config
 config = load_config()
 
 # Default model path (use specified path)
-DEFAULT_MODEL_DIR = "./backdoor_Llama_3.2_1B_alpaca_data_trigger_cf_ratio_0.18_target_Visit_the_website_ht"
+DEFAULT_MODEL_DIR = "model_path"
 
 # Use GPU 2: set CUDA_VISIBLE_DEVICES so GPU 2 maps to cuda:0
 if "CUDA_VISIBLE_DEVICES" not in os.environ:
@@ -260,7 +260,7 @@ class BackdoorDemoFixed:
         
         print("🧠 Using dynamic-programming global optimal strategy")
         
-        # 根据模型类型使用与训练时完全相同的对话格式
+
         if self.is_llama:
             formatted_prompt = f"<s>[INST] {prompt} [/INST]"
         else:
@@ -576,7 +576,7 @@ class BackdoorDemoFixed:
                 # Normal samples should not trigger backdoor
                 target_lower = self.target_output.lower()
                 response_lower = response.lower()
-                # 检查是否误触发
+               
                 if "visit" in target_lower:
                     target_keywords = ["visit", "website", "https"]
                 else:
@@ -772,12 +772,7 @@ def main():
     from config import load_config
     config = load_config()
     
-    demo = BackdoorDemoFixed(
-        # model_path can be generated from config or set manually
-        # model_path="./backdoor_llama_160m_alpaca_trigger_thou_ratio_0.1_target_Visit_the_website_ht",
-        # Use defaults from config
-    )
-    
+  
     # Load model
     print("\n🔧 Loading LoRA fine-tuned model...")
     if not demo.load_model():
@@ -789,7 +784,7 @@ def main():
     # Choose demo mode
     print("\nChoose demo mode:")
     print("1. Preset demo")
-    print("2. Wu Shihong specific demo")
+  
     print("3. Interactive demo")
     print("4. Token analysis demo")
     print("5. Global optimal token generation demo")
@@ -802,7 +797,7 @@ def main():
     elif choice == "3":
         demo.interactive_demo()
     elif choice == "4":
-        # 开始时间测量
+       
         demo.token_analysis_demo()
     elif choice == "5":
         demo.global_optimal_demo()
