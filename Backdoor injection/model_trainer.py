@@ -129,10 +129,7 @@ class LLaMA2LoRATrainer:
         return f"./{model_name}"
         
     def load_model_and_tokenizer(self):
-       
         logger.info(f"Loading model: {self.model_name}")
-        
-       
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
@@ -191,7 +188,6 @@ class LLaMA2LoRATrainer:
         self.model.print_trainable_parameters()
         
     def tokenize_function(self, examples):
-        """分词函数"""
         return self.tokenizer(
             examples["text"],
             truncation=True,
@@ -201,20 +197,15 @@ class LLaMA2LoRATrainer:
         )
         
     def prepare_dataset(self, dataset: Dataset) -> Dataset:
-        """准备数据集"""
         logger.info("Preparing dataset")
-        
-      
         tokenized_dataset = dataset.map(
             self.tokenize_function,
             batched=True,
             remove_columns=dataset.column_names
         )
-        
         return tokenized_dataset
         
     def get_training_arguments(self) -> TrainingArguments:
-      
         return TrainingArguments(
             output_dir=self.output_dir,
             num_train_epochs=self.num_train_epochs,
