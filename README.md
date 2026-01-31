@@ -24,7 +24,7 @@ Note: some scripts still prioritize their internal hard-coded paths (see below).
 ## Scripts and Usage
 
 ### `demo.py`
-Backdoor attack demo script that loads a LoRA fine-tuned model and provides multiple interactive modes.
+Demonstrate the effect of the backdoor attack.
 
 ```bash
 python demo.py
@@ -35,7 +35,7 @@ Highlights:
 - if `CUDA_VISIBLE_DEVICES` is not set, the script sets it to `2`
 
 ### `Target_generation.py`
-Advanced candidate sequence generator based on a LoRA model and saves results to disk.
+Generate candidate target output sequences.
 
 ```bash
 python Target_generation.py
@@ -48,7 +48,7 @@ Highlights:
 - real-time save: `config.model.real_time_save_file`
 
 ### `multi_token_analysis.py`
-Multi-token starting sequence analysis tool with an interactive workflow.
+Given a prefix, analyze the probability distribution of the subsequently generated tokens.
 
 ```bash
 python multi_token_analysis.py
