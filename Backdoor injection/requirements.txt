@@ -1,0 +1,23 @@
+# Core deep learning framework
+torch>=2.0.0
+transformers>=4.30.0
+
+# Parameter-efficient fine-tuning
+peft>=0.4.0
+
+# Dataset processing
+datasets>=2.12.0
+pandas>=1.5.0
+
+# Numerical computing
+numpy>=1.24.0
+
+# ML evaluation metrics
+scikit-learn>=1.3.0
+
+# 8-bit quantization support (optional, for lower memory usage)
+bitsandbytes>=0.41.0
+
+# Acceleration library (optional, for model speedup)
+accelerate>=0.20.0
+
